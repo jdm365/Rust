@@ -1,0 +1,16 @@
+[package]
+name = "game_tutorial"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+specs = "0.14"
+specs-derive = "0.4"
+
+
+[dependencies.sdl2]
+version = "0.35.2"
+default-features = false
+features = ["image"]
