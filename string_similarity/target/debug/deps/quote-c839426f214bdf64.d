@@ -1,0 +1,13 @@
+/home/jdm365/rust/string_similarity/target/debug/deps/quote-c839426f214bdf64.rmeta: /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/lib.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ext.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/format.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ident_fragment.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/to_tokens.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/runtime.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/spanned.rs
+
+/home/jdm365/rust/string_similarity/target/debug/deps/libquote-c839426f214bdf64.rlib: /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/lib.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ext.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/format.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ident_fragment.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/to_tokens.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/runtime.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/spanned.rs
+
+/home/jdm365/rust/string_similarity/target/debug/deps/quote-c839426f214bdf64.d: /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/lib.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ext.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/format.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ident_fragment.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/to_tokens.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/runtime.rs /home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/spanned.rs
+
+/home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/lib.rs:
+/home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ext.rs:
+/home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/format.rs:
+/home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/ident_fragment.rs:
+/home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/to_tokens.rs:
+/home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/runtime.rs:
+/home/jdm365/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.23/src/spanned.rs:
