@@ -1,11 +1,11 @@
 import numpy as np
-from string_similarity import jaro_winkler
+from string_similarity import jaro_winkler, jaro_winkler_vector, jaro_winkler_simd
 from jarowinkler import jarowinkler_similarity 
 from math import floor
 from time import perf_counter
 
 
-N_ITERS = 10000
+N_ITERS = 1000000
 
 #x = 'abcdefghijklmnopqrstuvw'
 #y = 'zyxwvuasdflkjasdhgfedcb'
@@ -88,11 +88,13 @@ def jaro_distance(s1, s2):
            (match - t) / match)/ 3.0
 
 
+'''
 start = perf_counter()
 for idx in range(N_ITERS):
     sim_python = jaro_distance(x, y)
 end = perf_counter()
 print(f'Pure Python Elapsed time: {end - start} seconds')
+'''
 
 
 
@@ -100,8 +102,21 @@ start = perf_counter()
 for idx in range(N_ITERS):
     sim_rust = jaro_winkler(x, y)
 end = perf_counter()
-print(f'Rust Elapsed time: {end - start} seconds')
+print(f'Rust Bitmap Elapsed time: {end - start} seconds')
 
+
+start = perf_counter()
+for idx in range(N_ITERS):
+    sim_rust = jaro_winkler_vector(x, y)
+end = perf_counter()
+print(f'Rust Vector Elapsed time: {end - start} seconds')
+
+
+start = perf_counter()
+for idx in range(N_ITERS):
+    sim_rust = jaro_winkler_vector(x, y)
+end = perf_counter()
+print(f'Rust SIMD Elapsed time: {end - start} seconds')
 
 
 start = perf_counter()
