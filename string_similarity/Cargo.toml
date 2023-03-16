@@ -1,5 +1,5 @@
 [package]
-name = "string_similarity"
+name = "weighted_levenshtein"
 version = "0.1.0"
 edition = "2021"
 authors = ["jakemehlman <jdm365@georgetown.edu>"]
@@ -10,15 +10,14 @@ authors = ["jakemehlman <jdm365@georgetown.edu>"]
 
 [dependencies]
 pyo3 = {version="0.16.5", features=["extension-module"]}
-bitmaps = "3.2.0"
 
 
 [lib]
-name = "string_similarity"
+name = "weighted_levenshtein"
 crate-type = ["cdylib"]
 
 
 [profile.release]
-lto = true
+lto = "fat" 
 codegen-units = 1
-profile-guided = "./target/release/instr.profdata"
+opt-level = 3

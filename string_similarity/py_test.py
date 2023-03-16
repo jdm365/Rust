@@ -1,11 +1,11 @@
 import numpy as np
-from string_similarity import jaro_winkler, jaro_winkler_vector, jaro_winkler_simd
+from weighted_levenshtein import *
 from jarowinkler import jarowinkler_similarity 
 from math import floor
 from time import perf_counter
 
 
-N_ITERS = 1000000
+N_ITERS = 10000
 
 #x = 'abcdefghijklmnopqrstuvw'
 #y = 'zyxwvuasdflkjasdhgfedcb'
@@ -13,10 +13,46 @@ N_ITERS = 1000000
 x = 'abcdefasdlk;fas;dlkjfkjl;sadfkjl;sadfklj;ka;jlfsdghijklmnopqrstuvwxyzaklsjdflaksjjdfkjlasdklfj'
 y = 'zyxda;slkfdakjl;k;ljdfkjl;asdlk;jdfsakl;jadfskl;jfdsalk;jwvuasdflkjasdhgfedcbaaskjldfalskdfkjlasdkfljaasdklf;lkjasdkl;jfklj;asdkflj;asklj;dk;ljfakl;jslk'
 
+## Function to calculate the weighted levenshtein similarity
+def weighted_levenshtein_python(
+        str1, 
+        str2, 
+        insertion_cost=1, 
+        deletion_cost=1, 
+        substitution_cost=1
+        ):
+    if str1 == str2:
+        return 1.0
+
+    len1 = len(str1)
+    len2 = len(str2)
+
+    if len1 == 0 or len2 == 0:
+        return 0.0
+
+    table = [[0] * (len2 + 1) for _ in range(len1 + 1)]
+
+    for idx in range(1, len1 + 1):
+        table[idx][0] = table[idx - 1][0] + deletion_cost
+
+    for idx in range(1, len2 + 1):
+        table[0][idx] = table[0][idx - 1] + insertion_cost
+
+    for idx, c1 in enumerate(str1):
+        for jdx, c2 in enumerate(str2):
+            sub_cost = 0 if c1 == c2 else substitution_cost
+            table[idx + 1][jdx + 1] = min(
+                table[idx][jdx + 1] + deletion_cost,
+                table[idx + 1][jdx] + insertion_cost,
+                table[idx][jdx] + sub_cost
+            )
+
+    return table[len1][len2]
+
+
 # Function to calculate the
 # Jaro Similarity of two s
-def jaro_distance(s1, s2):
-     
+def jaro_winkler_similarity_python(s1, s2):
     # If the s are equal
     if (s1 == s2):
         return 1.0
@@ -83,49 +119,57 @@ def jaro_distance(s1, s2):
     print(f'len2: {len2}')
     '''
  
-    # Return the Jaro Similarity
-    return (match/ len1 + match / len2 +
-           (match - t) / match)/ 3.0
+    sim = (match / len1 + match / len2 + (match - t) / match) / 3.0
+
+    # Calculate the Jaro-Winkler similarity
+    scaling_factor = 0.1
+    max_prefix_length = 4
+    prefix = 0
+    for i in range(min(len1, len2, max_prefix_length)):
+        if s1[i] == s2[i]:
+            prefix += 1
+        else:
+            break
+    
+    return sim + prefix * scaling_factor * (1.0 - sim)
 
 
-'''
-start = perf_counter()
-for idx in range(N_ITERS):
-    sim_python = jaro_distance(x, y)
-end = perf_counter()
-print(f'Pure Python Elapsed time: {end - start} seconds')
-'''
-
-
-
-start = perf_counter()
-for idx in range(N_ITERS):
-    sim_rust = jaro_winkler(x, y)
-end = perf_counter()
-print(f'Rust Bitmap Elapsed time: {end - start} seconds')
 
 
 start = perf_counter()
 for idx in range(N_ITERS):
-    sim_rust = jaro_winkler_vector(x, y)
+    sim_python = jaro_winkler_similarity_python(x, y)
 end = perf_counter()
-print(f'Rust Vector Elapsed time: {end - start} seconds')
+print(f'Python Jaro Winkler time:          {end - start} seconds')
+print(f'Python Jaro Winkler similarity:    {sim_python}\n')
 
 
 start = perf_counter()
 for idx in range(N_ITERS):
-    sim_rust = jaro_winkler_vector(x, y)
+    sim_rust = jaro_winkler_similarity(x, y)
 end = perf_counter()
-print(f'Rust SIMD Elapsed time: {end - start} seconds')
+print(f'Rust Jaro winkler Elapsed time:    {end - start} seconds')
+print(f'Rust Jaro winkler similarity:      {sim_rust}\n')
+
+print(81 * "=" + "\n")
+
+start = perf_counter()
+for idx in range(N_ITERS):
+    sim_rust_wlev = weighted_levenshtein_distance(
+            x, 
+            y, 
+            insertion_cost=1, 
+            deletion_cost=1,
+            substitution_cost=1
+            )
+end = perf_counter()
+print(f'Rust wlev Elapsed time:            {end - start} seconds')
+print(f'Rust wlev distance:                {sim_rust_wlev}\n')
 
 
 start = perf_counter()
 for idx in range(N_ITERS):
-    sim_cpp = jarowinkler_similarity(x, y)
+    sim_python_wlev = weighted_levenshtein_python(x, y)
 end = perf_counter()
-print(f'(C++/Cython) Library Elapsed time: {end - start} seconds')
-
-
-
-
-np.testing.assert_approx_equal(sim_cpp, sim_rust, err_msg=f'Results do not match - rust: {sim_rust}, cpp: {sim_cpp}')
+print(f'Python wlev Elapsed time:          {end - start} seconds')
+print(f'Python wlev distance:              {sim_python_wlev}\n')

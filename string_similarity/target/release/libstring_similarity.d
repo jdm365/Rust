@@ -1,1 +1,1 @@
-/home/jdm365/rust/string_similarity/target/release/libstring_similarity.so: /home/jdm365/rust/string_similarity/src/lib.rs
+/home/jdm365/CodingProjects/Rust/string_similarity/target/release/libstring_similarity.so: /home/jdm365/CodingProjects/Rust/string_similarity/src/lib.rs
