@@ -3,15 +3,16 @@ from weighted_levenshtein import *
 from jarowinkler import jarowinkler_similarity 
 from math import floor
 from time import perf_counter
+import pandas as pd
 
 
 N_ITERS = 10000
 
-#x = 'abcdefghijklmnopqrstuvw'
-#y = 'zyxwvuasdflkjasdhgfedcb'
+x = 'abcdefghijklmnopqrstuvw'
+y = 'zyxwvuasdflkjasdhgfedcb'
 
-x = 'abcdefasdlk;fas;dlkjfkjl;sadfkjl;sadfklj;ka;jlfsdghijklmnopqrstuvwxyzaklsjdflaksjjdfkjlasdklfj'
-y = 'zyxda;slkfdakjl;k;ljdfkjl;asdlk;jdfsakl;jadfskl;jfdsalk;jwvuasdflkjasdhgfedcbaaskjldfalskdfkjlasdkfljaasdklf;lkjasdkl;jfklj;asdkflj;asklj;dk;ljfakl;jslk'
+#x = 'abcdefasdlk;fas;dlkjfkjl;sadfkjl;sadfklj;ka;jlfsdghijklmnopqrstuvwxyzaklsjdflaksjjdfkjlasdklfj'
+#y = 'zyxda;slkfdakjl;k;ljdfkjl;asdlk;jdfsakl;jadfskl;jfdsalk;jwvuasdflkjasdhgfedcbaaskjldfalskdfkjlasdkfljaasdklf;lkjasdkl;jfklj;asdkflj;asklj;dk;ljfakl;jslk'
 
 ## Function to calculate the weighted levenshtein similarity
 def weighted_levenshtein_python(
@@ -21,6 +22,9 @@ def weighted_levenshtein_python(
         deletion_cost=1, 
         substitution_cost=1
         ):
+    if str1 is None or str2 is None:
+        return 0.0
+
     if str1 == str2:
         return 1.0
 
@@ -54,6 +58,10 @@ def weighted_levenshtein_python(
 # Jaro Similarity of two s
 def jaro_winkler_similarity_python(s1, s2):
     # If the s are equal
+    if s1 is None or s2 is None:
+        return 0.0
+
+
     if (s1 == s2):
         return 1.0
  
@@ -134,6 +142,24 @@ def jaro_winkler_similarity_python(s1, s2):
     return sim + prefix * scaling_factor * (1.0 - sim)
 
 
+def jaccard_similarity_python(str1, str2):
+    if str1 is None or str2 is None:
+        return 0.0
+
+    if str1 == str2:
+        return 1.0
+
+    len1 = len(str1)
+    len2 = len(str2)
+
+    if len1 == 0 or len2 == 0:
+        return 0.0
+
+    intersection = len(set(str1).intersection(str2))
+    union = (len1 + len2) - intersection
+
+    return float(intersection) / union
+
 
 
 start = perf_counter()
@@ -173,3 +199,32 @@ for idx in range(N_ITERS):
 end = perf_counter()
 print(f'Python wlev Elapsed time:          {end - start} seconds')
 print(f'Python wlev distance:              {sim_python_wlev}\n')
+
+print(81 * "=" + "\n")
+
+start = perf_counter()
+for idx in range(N_ITERS):
+    sim_rust_jaccard = jaccard_similarity(x, y)
+end = perf_counter()
+print(f'Rust jaccard Elapsed time:         {end - start} seconds')
+print(f'Rust jaccard distance:             {sim_rust_jaccard}\n')
+
+
+start = perf_counter()
+for idx in range(N_ITERS):
+    sim_python_jaccard = jaccard_similarity_python(x, y)
+end = perf_counter()
+print(f'Python jaccard Elapsed time:       {end - start} seconds')
+print(f'Python jaccard distance:           {sim_python_jaccard}\n')
+
+
+'''
+start = perf_counter()
+for idx in range(N_ITERS // 128):
+    x_arr = np.array([x] * 128)
+    y_arr = np.array([y] * 128)
+    sim_rust_jaro = jaro_winkler_similarity_pd(x_arr, y_arr)
+end = perf_counter()
+print(f'Rust wlev Batch Elapsed time:            {end - start} seconds')
+print(f'Rust wlev Batch distance:                {sim_rust_wlev}\n')
+'''

@@ -1,4 +1,5 @@
 use std::cmp;
+use std::collections::HashSet;
 
 use pyo3::prelude::*;
 use pyo3::types::PyString;
@@ -8,60 +9,80 @@ use pyo3::types::PyString;
 #[pyo3(signature = "(str1, str2, max_prefix_length=4, scaling_factor=0.1)")]
 fn jaro_winkler_similarity(
     _py: Python, 
-    str1: &PyString, 
-    str2: &PyString,
-    max_prefix_length: Option<usize>,
+    str1: Option<&PyString>, 
+    str2: Option<&PyString>,
+    max_prefix_length: Option<i32>,
     scaling_factor: Option<f32>,
     ) -> PyResult<f32> {
-    unsafe {
-        Ok(get_jaro_winkler_similarity_simd(
-                &str1.to_string().as_bytes().to_vec(), 
-                &str2.to_string().as_bytes().to_vec(),
-                match max_prefix_length {
-                    Some(x) => x,
-                    None => 4,
-                },
-                match scaling_factor {
-                    Some(x) => x,
-                    None => 0.1,
-                }
-                ))
+
+    // if str1 or str2 is None, return 0
+    if str1.is_none() || str2.is_none() {
+        return Ok(0.0);
     }
+
+    Ok(get_jaro_winkler_similarity_simd(
+            &str1.unwrap().to_string().as_bytes().to_vec(),
+            &str2.unwrap().to_string().as_bytes().to_vec(),
+            max_prefix_length.unwrap_or(4) as usize,
+            scaling_factor.unwrap_or(0.1),
+            ))
 }
+
+
 
 #[pyfunction]
 #[pyo3(signature = "(str1, str2, deletion_cost=1, insertion_cost=1, substitution_cost=1)")]
 fn weighted_levenshtein_distance(
     _py: Python, 
-    str1: &PyString, 
-    str2: &PyString,
-    deletion_cost: Option<usize>,
-    insertion_cost: Option<usize>,
-    substitution_cost: Option<usize>,
+    str1: Option<&PyString>, 
+    str2: Option<&PyString>,
+    deletion_cost: Option<i32>,
+    insertion_cost: Option<i32>,
+    substitution_cost: Option<i32>,
     ) -> PyResult<usize> {
+
+    // if str1 or str2 is None, return 0
+    if str1.is_none() || str2.is_none() {
+        return Ok(0);
+    }
+
     Ok(get_weighted_levenshtein_distance(
-            &str1.to_string().as_bytes().to_vec(), 
-            &str2.to_string().as_bytes().to_vec(),
-            match deletion_cost {
-                Some(x) => x,
-                None => 1,
-            },
-            match insertion_cost {
-                Some(x) => x,
-                None => 1,
-            },
-            match substitution_cost {
-                Some(x) => x,
-                None => 1,
-            }
-            ))
+            &str1.unwrap().to_string().as_bytes().to_vec(),
+            &str2.unwrap().to_string().as_bytes().to_vec(),
+            deletion_cost.unwrap_or(1) as usize,
+            insertion_cost.unwrap_or(1) as usize,
+            substitution_cost.unwrap_or(1) as usize,
+            )) 
 }
 
 
+#[pyfunction]
+#[pyo3(signature = "(str1, str2)")]
+fn jaccard_similarity(
+    _py: Python, 
+    str1: Option<&PyString>, 
+    str2: Option<&PyString>,
+    ) -> PyResult<f32> {
+
+    // if str1 or str2 is None, return 0
+    if str1.is_none() || str2.is_none() {
+        return Ok(0.0);
+    }
+
+    Ok(get_jaccard_similarity(
+            &str1.unwrap().to_string().as_bytes().to_vec(),
+            &str2.unwrap().to_string().as_bytes().to_vec(),
+            )) 
+
+}
+
+
+
 #[pymodule]
-fn weighted_levenshtein(_py: Python, m: &PyModule) -> PyResult<()> {
+fn string_sim_metrics(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(jaro_winkler_similarity, m)?)?;
     m.add_function(wrap_pyfunction!(weighted_levenshtein_distance, m)?)?;
+    m.add_function(wrap_pyfunction!(jaccard_similarity, m)?)?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add("__author__", env!("CARGO_PKG_AUTHORS"))?;
     m.add("__description__", env!("CARGO_PKG_DESCRIPTION"))?;
@@ -70,22 +91,21 @@ fn weighted_levenshtein(_py: Python, m: &PyModule) -> PyResult<()> {
 
 
 
-#[target_feature(enable = "avx2")]
-pub unsafe fn get_jaro_winkler_similarity_simd(
+pub fn get_jaro_winkler_similarity_simd(
     str1: &Vec<u8>, 
     str2: &Vec<u8>,
     max_prefix_length: usize,
     scaling_factor: f32,
     ) -> f32 {
-    if str1 == str2 {
-        return 1.0;
-    }
-
     let len1 = str1.len();
     let len2 = str2.len();
 
     if len1 == 0 || len2 == 0 {
         return 0.0;
+    }
+
+    if str1 == str2 {
+        return 1.0;
     }
 
     let search_range = (cmp::max(len1, len2) / 2) - 1;
@@ -156,15 +176,15 @@ pub fn get_weighted_levenshtein_distance(
     insertion_cost: usize,
     substitution_cost: usize
     ) -> usize {
-    if str1 == str2 {
-        return 1;
-    }
-
     let len1 = str1.len();
     let len2 = str2.len();
 
     if len1 == 0 || len2 == 0 {
         return 0;
+    }
+
+    if str1 == str2 {
+        return 1;
     }
 
     let mut table: Vec<Vec<usize>> = vec![vec![0; len2 + 1]; len1 + 1];
@@ -192,6 +212,29 @@ pub fn get_weighted_levenshtein_distance(
     return table[len1][len2];
 }
 
+pub fn get_jaccard_similarity(
+    str1: &Vec<u8>,
+    str2: &Vec<u8>,
+    ) -> f32 {
+    let len1 = str1.len();
+    let len2 = str2.len();
+
+    if len1 == 0 || len2 == 0 {
+        return 0.0;
+    }
+
+    if str1 == str2 {
+        return 1.0;
+    }
+
+    let hashset1: HashSet<u8> = str1.iter().cloned().collect();
+    let hashset2: HashSet<u8> = str2.iter().cloned().collect();
+
+    let intersection = hashset1.intersection(&hashset2).count();
+    let union = len1 + len2 - intersection;
+    return (intersection as f32) / (union as f32);
+
+}
 
 
 #[cfg(test)]
@@ -200,14 +243,14 @@ mod tests {
 
     #[test]
     fn no_error() {
-        let str1: Vec<char> = "testdklfj;asdkljfakl;jsdlk;fjasklj;df".chars().collect();
-        let str2: Vec<char> = "tasdklfaskl;djfjas;lkjdfkl;jasdest".chars().collect();
+        let str1: Vec<u8> = "testdklfj;asdkljfakl;jsdlk;fjasklj;df".to_string().as_bytes().to_vec();
+        let str2: Vec<u8> = "tasdklfaskl;djfjas;lkjdfkl;jasdest".to_string().as_bytes().to_vec();
 
-        let similarity_simd = get_jaro_winkler_similarity_simd(&str1, &str2);
-        let similarity_wlev = get_weighted_levenshtein_distance(&str1, &str2, 1, 1, 1);
+        let similarity_simd = get_jaro_winkler_similarity_simd(&str1, &str2, 1, 0.1);
+        let _similarity_wlev = get_weighted_levenshtein_distance(&str1, &str2, 1, 1, 1);
 
-        assert!(similarity <= 1.0);
-        assert!(similarity >= 0.0);
+        assert!(similarity_simd <= 1.0);
+        assert!(similarity_simd >= 0.0);
     }
 
 }

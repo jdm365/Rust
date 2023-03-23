@@ -1,6 +1,6 @@
 [package]
-name = "weighted_levenshtein"
-version = "0.1.0"
+name = "string_sim_metrics"
+version = "0.1.2"
 edition = "2021"
 authors = ["jakemehlman <jdm365@georgetown.edu>"]
 
@@ -9,11 +9,11 @@ authors = ["jakemehlman <jdm365@georgetown.edu>"]
 
 
 [dependencies]
-pyo3 = {version="0.16.5", features=["extension-module"]}
+pyo3 = {version="0.15.2", features=["extension-module"]}
 
 
 [lib]
-name = "weighted_levenshtein"
+name = "string_sim_metrics"
 crate-type = ["cdylib"]
 
 
