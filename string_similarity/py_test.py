@@ -6,7 +6,7 @@ from time import perf_counter
 import pandas as pd
 
 
-N_ITERS = 10000
+N_ITERS = 50000
 
 x = 'abcdefghijklmnopqrstuvw'
 y = 'zyxwvuasdflkjasdhgfedcb'
