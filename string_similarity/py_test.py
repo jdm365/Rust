@@ -1,5 +1,5 @@
 import numpy as np
-from weighted_levenshtein import *
+from string_sim_metrics import *
 from jarowinkler import jarowinkler_similarity 
 from math import floor
 from time import perf_counter

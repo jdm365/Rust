@@ -6,7 +6,7 @@ use pyo3::types::PyString;
 
 
 #[pyfunction]
-#[pyo3(signature = "(str1, str2, max_prefix_length=4, scaling_factor=0.1)")]
+#[pyo3(signature = (str1, str2, max_prefix_length=4, scaling_factor=0.1))]
 fn jaro_winkler_similarity(
     _py: Python, 
     str1: Option<&PyString>, 
@@ -31,7 +31,7 @@ fn jaro_winkler_similarity(
 
 
 #[pyfunction]
-#[pyo3(signature = "(str1, str2, deletion_cost=1, insertion_cost=1, substitution_cost=1)")]
+#[pyo3(signature = (str1, str2, deletion_cost=1, insertion_cost=1, substitution_cost=1))]
 fn weighted_levenshtein_distance(
     _py: Python, 
     str1: Option<&PyString>, 
@@ -57,7 +57,7 @@ fn weighted_levenshtein_distance(
 
 
 #[pyfunction]
-#[pyo3(signature = "(str1, str2)")]
+#[pyo3(signature = (str1, str2))]
 fn jaccard_similarity(
     _py: Python, 
     str1: Option<&PyString>, 

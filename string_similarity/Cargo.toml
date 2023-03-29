@@ -9,8 +9,7 @@ authors = ["jakemehlman <jdm365@georgetown.edu>"]
 
 
 [dependencies]
-pyo3 = {version="0.15.2", features=["extension-module"]}
-
+pyo3 = {version="~0.18.2", features=["extension-module"]}
 
 [lib]
 name = "string_sim_metrics"
