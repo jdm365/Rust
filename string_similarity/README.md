@@ -5,6 +5,7 @@ for performance gains over pure python implementations.
 **NOTE: Will convert all charachters to lowercase.
 
 <h5>Example</h5>
+
 ```
 from string_sim_metrics import *
 
@@ -20,12 +21,13 @@ wlev_dist = weighted_levenshtein_distance(
         )
 print(wlev_dist)
 
->> 39
-
+stdout
+  39
 ```
 
 
 Performance difference vs an identical implementation in pure python.
+
 ```
 from string_sim_metrics import *
 from time import perf_counter
@@ -58,17 +60,19 @@ print(f'Python wlev Elapsed time:          {end - start} seconds')
 print(f'Python wlev distance:              {sim_python_wlev}\n')
 
 
->> Rust wlev Elapsed time:            0.2741983429878019 seconds
->> Rust wlev distance:                31
+stdout
+   Rust wlev Elapsed time:            0.2741983429878019 seconds
+   Rust wlev distance:                31
 
->> Python wlev Elapsed time:          14.970698102988536 seconds
->> Python wlev distance:              31
-
+   Python wlev Elapsed time:          14.970698102988536 seconds
+   Python wlev distance:              31
 ```
+
 ~55x performance increase.
 
 
 Additional parameters for jarowinkler sim.
+
 ```
 x = 'antidisestablishmentarianism'
 y = 'Hippopotomonstrosesquippedaliophobia'
@@ -76,17 +80,15 @@ y = 'Hippopotomonstrosesquippedaliophobia'
 jw_sim = jaro_winkler_similarity(x, y, max_prefix_length=4, scaling_factor=0.1)
 ```
 
-
-
 Standard Jaccard implementation.
 **NOTE: Performance in python is equally good if you use instersection and union built
         in functions. They are already compiled.
+        
 ```
 x = 'antidisestablishmentarianism'
 y = 'Hippopotomonstrosesquippedaliophobia'
 
 jaccard_sim = jaccard_similarity(x, y)
 ```
-
 
 Nothing else provided at the moment. Might consider adding more if needed/desired.
