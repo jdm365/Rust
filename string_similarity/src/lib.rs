@@ -2,7 +2,9 @@ use std::cmp;
 use std::collections::HashSet;
 
 use pyo3::prelude::*;
-use pyo3::types::PyString;
+use pyo3::types::{ PyString, PyList };
+
+use rayon::prelude::*;
 
 
 #[pyfunction]
@@ -20,12 +22,51 @@ fn jaro_winkler_similarity(
         return Ok(0.0);
     }
 
-    Ok(get_jaro_winkler_similarity_simd(
+    Ok(get_jaro_winkler_similarity(
             &str1.unwrap().to_string().as_bytes().to_vec(),
             &str2.unwrap().to_string().as_bytes().to_vec(),
             max_prefix_length.unwrap_or(4) as usize,
             scaling_factor.unwrap_or(0.1),
             ))
+}
+
+#[pyfunction]
+#[pyo3(signature = (str1_list, str2_list, max_prefix_length=4, scaling_factor=0.1))]
+fn jaro_winkler_similarity_batched(
+    _py: Python, 
+    str1_list: Option<&PyList>, 
+    str2_list: Option<&PyList>,
+    max_prefix_length: Option<i32>,
+    scaling_factor: Option<f32>,
+    ) -> PyResult<Vec<f32>> {
+
+    // if str1 or str2 is None, return 0
+    if str1_list.is_none() || str2_list.is_none() {
+        return Err(pyo3::exceptions::PyValueError::new_err("str1_list and str2_list must be lists"));
+    }
+    let str1_vec: Vec<String> = str1_list.unwrap().iter().map(|py_string| py_string.to_string()).collect();
+    let str2_vec: Vec<String> = str2_list.unwrap().iter().map(|py_string| py_string.to_string()).collect();
+    
+    if str1_vec.len() != str2_vec.len() {
+        return Err(pyo3::exceptions::PyValueError::new_err("str1_list and str2_list must be of the same length"));
+    }
+
+    if str1_vec.len() == 0 {
+        return Ok(vec![]);
+    }
+
+    // Use _py.allow_threads() to allow the GIL to be released
+    let jw_sims: Vec<f32> = _py.allow_threads(|| {
+        str1_vec.par_iter().zip(str2_vec.par_iter()).map(|(str1, str2)| {
+            get_jaro_winkler_similarity(
+                &str1.as_bytes().to_vec(),
+                &str2.as_bytes().to_vec(),
+                max_prefix_length.unwrap_or(4) as usize,
+                scaling_factor.unwrap_or(0.1),
+            )
+        }).collect()
+    });
+    Ok(jw_sims)
 }
 
 
@@ -83,6 +124,7 @@ fn string_sim_metrics(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(jaro_winkler_similarity, m)?)?;
     m.add_function(wrap_pyfunction!(weighted_levenshtein_distance, m)?)?;
     m.add_function(wrap_pyfunction!(jaccard_similarity, m)?)?;
+    m.add_function(wrap_pyfunction!(jaro_winkler_similarity_batched, m)?)?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add("__author__", env!("CARGO_PKG_AUTHORS"))?;
     m.add("__description__", env!("CARGO_PKG_DESCRIPTION"))?;
@@ -91,7 +133,7 @@ fn string_sim_metrics(_py: Python, m: &PyModule) -> PyResult<()> {
 
 
 
-pub fn get_jaro_winkler_similarity_simd(
+pub fn get_jaro_winkler_similarity(
     str1: &Vec<u8>, 
     str2: &Vec<u8>,
     max_prefix_length: usize,
@@ -246,11 +288,11 @@ mod tests {
         let str1: Vec<u8> = "testdklfj;asdkljfakl;jsdlk;fjasklj;df".to_string().as_bytes().to_vec();
         let str2: Vec<u8> = "tasdklfaskl;djfjas;lkjdfkl;jasdest".to_string().as_bytes().to_vec();
 
-        let similarity_simd = get_jaro_winkler_similarity_simd(&str1, &str2, 1, 0.1);
+        let similarity = get_jaro_winkler_similarity(&str1, &str2, 1, 0.1);
         let _similarity_wlev = get_weighted_levenshtein_distance(&str1, &str2, 1, 1, 1);
 
-        assert!(similarity_simd <= 1.0);
-        assert!(similarity_simd >= 0.0);
+        assert!(similarity <= 1.0);
+        assert!(similarity >= 0.0);
     }
 
 }

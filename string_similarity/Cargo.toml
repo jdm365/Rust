@@ -10,6 +10,7 @@ authors = ["jakemehlman <jdm365@georgetown.edu>"]
 
 [dependencies]
 pyo3 = {version="~0.18.2", features=["extension-module"]}
+rayon = "1.7.0"
 
 [lib]
 name = "string_sim_metrics"

@@ -1,12 +1,11 @@
 import numpy as np
 from string_sim_metrics import *
-from jarowinkler import jarowinkler_similarity 
 from math import floor
 from time import perf_counter
 import pandas as pd
 
 
-N_ITERS = 50000
+N_ITERS = 100000
 
 x = 'abcdefghijklmnopqrstuvw'
 y = 'zyxwvuasdflkjasdhgfedcb'
@@ -179,6 +178,17 @@ print(f'Rust Jaro winkler similarity:      {sim_rust}\n')
 
 print(81 * "=" + "\n")
 
+
+str1_list = N_ITERS * [x]
+str2_list = N_ITERS * [y]
+start = perf_counter()
+sim_rust = jaro_winkler_similarity_batched(str1_list, str2_list)
+end = perf_counter()
+print(f'Rust Jaro winkler Batched Elapsed time:    {end - start} seconds')
+print(f'Rust Jaro winkler Batched similarity:      {sim_rust[0]}\n')
+
+print(81 * "=" + "\n")
+
 start = perf_counter()
 for idx in range(N_ITERS):
     sim_rust_wlev = weighted_levenshtein_distance(
@@ -216,15 +226,3 @@ for idx in range(N_ITERS):
 end = perf_counter()
 print(f'Python jaccard Elapsed time:       {end - start} seconds')
 print(f'Python jaccard distance:           {sim_python_jaccard}\n')
-
-
-'''
-start = perf_counter()
-for idx in range(N_ITERS // 128):
-    x_arr = np.array([x] * 128)
-    y_arr = np.array([y] * 128)
-    sim_rust_jaro = jaro_winkler_similarity_pd(x_arr, y_arr)
-end = perf_counter()
-print(f'Rust wlev Batch Elapsed time:            {end - start} seconds')
-print(f'Rust wlev Batch distance:                {sim_rust_wlev}\n')
-'''
