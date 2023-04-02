@@ -70,7 +70,6 @@ fn jaro_winkler_similarity_batched(
 }
 
 
-
 #[pyfunction]
 #[pyo3(signature = (str1, str2, deletion_cost=1, insertion_cost=1, substitution_cost=1))]
 fn weighted_levenshtein_distance(
@@ -191,6 +190,7 @@ pub fn get_jaro_winkler_similarity(
             idx += 1;
         }
     }
+
     n_transpositions = (0.5 * n_transpositions.floor()).floor();
 
 

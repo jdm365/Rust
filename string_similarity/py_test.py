@@ -2,10 +2,9 @@ import numpy as np
 from string_sim_metrics import *
 from math import floor
 from time import perf_counter
-import pandas as pd
 
 
-N_ITERS = 100000
+N_ITERS = 1000
 
 x = 'abcdefghijklmnopqrstuvw'
 y = 'zyxwvuasdflkjasdhgfedcb'

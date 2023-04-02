@@ -21,3 +21,4 @@ crate-type = ["cdylib"]
 lto = "fat" 
 codegen-units = 1
 opt-level = 3
+debug = false
